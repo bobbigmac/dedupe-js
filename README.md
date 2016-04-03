@@ -36,7 +36,7 @@ Meteor.call('dedupe', [
 
 Returns array of matching pairs:
 
-```json
+```javascript
 [
 	{ x: 0, y: 4, similarity: 1 }, // 0 and 4 exact match
 	{ x: 0, y: 7, similarity: 0.75 }, // 0 matches 7 on 1 key and 0.5 for missing gives (1.5 / 2) = 0.75
