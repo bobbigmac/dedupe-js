@@ -1,6 +1,6 @@
 # Dedupe-js
 
-API for deduplication of JSON arrays of objects.
+API for fuzzy deduplication of JSON arrays of objects.
 
 Returns array of indexes of pairs, with similarity rating for each pair.
 
