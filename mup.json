@@ -16,10 +16,11 @@
   ],
 
   // Install MongoDB on the server. Does not destroy the local MongoDB on future setups
-  "setupMongo": true,
+  // Needs a decent-sized server instance
+  "setupMongo": false,
 
   // Application name (no spaces).
-  "appName": "dedupe.bobdavies.co.uk",
+  "appName": "dedupe",
 
   // Location of app (local directory). This can reference '~' as the users home directory.
   // i.e., "app": "~/Meteor/my-app",
