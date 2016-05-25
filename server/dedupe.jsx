@@ -22,52 +22,60 @@ Meteor.methods({
 			// let columns = {};
 
 			const objects = arr.map(function(curr, pos) {
-				const keys = ((fields.length && fields) || Object.keys(curr));
-				return keys.reduce(function(o, key) {
-					// let val = undefined;
-					if(key in curr) {
-						o[key] = (curr[key] instanceof Array ? curr[key].join(' ') : curr[key]);
-						// val = o[key];
-					}
+				try {
+					const keys = ((fields.length && fields) || Object.keys(curr));
+					return keys.reduce(function(o, key) {
+						// let val = undefined;
+						if(key in curr) {
+							o[key] = (curr[key] instanceof Array ? curr[key].join(' ') : curr[key]);
+							// val = o[key];
+						}
 
-					// if(!columns[key]) {
-					// 	columns[key] = [];
-					// }
-					// columns[key][pos] = val;
+						// if(!columns[key]) {
+						// 	columns[key] = [];
+						// }
+						// columns[key][pos] = val;
 
-					return o;
-				}, {});
+						return o;
+					}, {});
+				} catch(exc) {
+					console.log('Error parsing arr to objects', exc);
+				}
 			});
 
 			let ratings = [];
 
-			for(let i = 0; i < objects.length - 1; i++) {
-				for(let j = (i + 1); j < objects.length; j++) {
-					if(i != j && !(ratings[j] && ratings[j][i])) {
+			try {
+				for(let i = 0; i < objects.length - 1; i++) {
+					for(let j = (i + 1); j < objects.length; j++) {
+						if(i != j && !(ratings[j] && ratings[j][i])) {
 
-						const a = objects[i];
-						const b = objects[j];
+							const a = objects[i];
+							const b = objects[j];
 
-						for(const key in a) {
-							if(!ratings) {
-								ratings = [];
+							for(const key in a) {
+								if(!ratings) {
+									ratings = [];
+								}
+								if(!ratings[i]) {
+									ratings[i] = [];
+								}
+								
+								// console.log(key, i, j, a[key], b[key]);
+								const sims = ((a[key] && b[key] && dl(a[key], b[key])) || false);
+								ratings[i][j] = ratings[i][j] || [];
+								if(sims) {
+									ratings[i][j].push((sims.similarity === 0 ? 0 : (Math.round(sims.similarity*100) / 100)) || 0);
+								} else {
+									ratings[i][j].push(missingValue);
+								}
+								//console.log(ratings[key][i][j]);
 							}
-							if(!ratings[i]) {
-								ratings[i] = [];
-							}
-							
-							// console.log(key, i, j, a[key], b[key]);
-							const sims = ((a[key] && b[key] && dl(a[key], b[key])) || false);
-							ratings[i][j] = ratings[i][j] || [];
-							if(sims) {
-								ratings[i][j].push((sims.similarity === 0 ? 0 : (Math.round(sims.similarity*100) / 100)) || 0);
-							} else {
-								ratings[i][j].push(missingValue);
-							}
-							//console.log(ratings[key][i][j]);
 						}
 					}
 				}
+			} catch(exc) {
+				console.log('Error in double-loop', exc);
 			}
 
 			//Have an array of 'cleaned' objects
@@ -87,17 +95,21 @@ Meteor.methods({
 			//console.log(averages);
 
 			const pairs = averages.reduce(function(pre, avgs, oPos) {
-				avgs.filter(function(avg, iPos) {
-					if(avg >= threshold) {
-						pre.push({
-							x: oPos,
-							y: iPos,
-							similarity: avg,
-							//a: arr[iPos],
-							//b: arr[oPos]
-						});
-					}
-				});
+				try {
+					avgs.filter(function(avg, iPos) {
+						if(avg >= threshold) {
+							pre.push({
+								x: oPos,
+								y: iPos,
+								similarity: avg,
+								//a: arr[iPos],
+								//b: arr[oPos]
+							});
+						}
+					});
+				} catch(exc) {
+					console.log('Error in averages to pairs', exc);
+				}
 				return pre;
 			}, []);
 
